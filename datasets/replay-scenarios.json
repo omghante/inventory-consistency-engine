@@ -1,0 +1,13 @@
+{
+  "scenario": "worker-crash-recovery",
+  "initialStock": {"PS5": 1000, "XBOX": 500},
+  "events": [
+    {"eventId":"r001","productId":"PS5","warehouseId":"MUM","delta":-5},
+    {"eventId":"r002","productId":"PS5","warehouseId":"BLR","delta":-3},
+    {"eventId":"r003","productId":"XBOX","warehouseId":"DEL","delta":-10},
+    {"eventId":"r004","productId":"PS5","warehouseId":"MUM","delta":+20},
+    {"eventId":"r005","productId":"XBOX","warehouseId":"BLR","delta":-7}
+  ],
+  "crashAfterEvent": "r003",
+  "expectedFinalStock": {"PS5": 1012, "XBOX": 483}
+}

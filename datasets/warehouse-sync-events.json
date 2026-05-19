@@ -1,0 +1,5 @@
+[
+  {"eventId":"sync_001","productId":"PS5","warehouseId":"MUM-01","delta":+50,"source":"ERP_SYSTEM","reliability":0.850,"causalContext":{"MUM-01":10}},
+  {"eventId":"sync_002","productId":"PS5","warehouseId":"BLR-01","delta":+30,"source":"ERP_SYSTEM","reliability":0.850,"causalContext":{"BLR-01":8}},
+  {"eventId":"sync_003","productId":"IPHONE16","warehouseId":"DEL-01","delta":+100,"source":"WAREHOUSE_SCANNER","reliability":0.920,"causalContext":{"DEL-01":15}}
+]

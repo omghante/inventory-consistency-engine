@@ -1,0 +1,20 @@
+cascade:
+  engine:
+    trust-acceptance-threshold: 0.5
+    max-acceptable-event-age: 5m
+    enable-idempotency: true
+    enable-preconditions: true
+    enable-causality: true
+  queue:
+    capacity: 10000
+    max-retries: 3
+    base-backoff: 100ms
+    warning-threshold: 0.8
+  metrics:
+    report-interval: 10s
+    enable-throughput-metrics: true
+    enable-conflict-metrics: true
+  worker:
+    initial-count: 4
+    max-count: 16
+    poll-timeout: 100ms

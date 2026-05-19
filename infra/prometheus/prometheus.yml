@@ -1,0 +1,6 @@
+global:
+  scrape_interval: 15s
+scrape_configs:
+  - job_name: cascade
+    static_configs:
+      - targets: ['cascade:8080']

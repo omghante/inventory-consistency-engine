@@ -1,0 +1,7 @@
+[
+  {"eventId":"flash_001","productId":"PS5","warehouseId":"MUM-01","delta":-1,"source":"POS_AUTOMATED","reliability":0.985},
+  {"eventId":"flash_002","productId":"PS5","warehouseId":"BLR-01","delta":-1,"source":"POS_AUTOMATED","reliability":0.985},
+  {"eventId":"flash_003","productId":"PS5","warehouseId":"DEL-01","delta":-2,"source":"POS_AUTOMATED","reliability":0.990},
+  {"eventId":"flash_004","productId":"PS5","warehouseId":"HYD-01","delta":-1,"source":"WAREHOUSE_SCANNER","reliability":0.920},
+  {"eventId":"flash_005","productId":"PS5","warehouseId":"CHN-01","delta":-3,"source":"POS_AUTOMATED","reliability":0.985}
+]
