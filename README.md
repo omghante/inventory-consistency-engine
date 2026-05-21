@@ -7,7 +7,7 @@
 A distributed inventory reconciliation engine built for Amazon-scale e-commerce.
 
 [![Java](https://img.shields.io/badge/Java-17+-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/)
-[![Tests](https://img.shields.io/badge/Tests-76_Passing-4CAF50?style=for-the-badge)](.)
+[![Tests](https://img.shields.io/badge/Tests-87_Passing-4CAF50?style=for-the-badge)](.)
 [![License](https://img.shields.io/badge/License-MIT-2196F3?style=for-the-badge)](LICENSE)
 [![Build](https://img.shields.io/badge/Build-Maven-C71A36?style=for-the-badge&logo=apachemaven)](pom.xml)
 
@@ -40,6 +40,10 @@ Bare delta      →  Direct application with idempotency             (survival m
 When your metadata services are healthy, CASCADE uses vector clocks and trust scoring for precise conflict resolution. When services go down, it **gracefully degrades** instead of crashing. Your checkout never stops.
 
 **Same engine. Same function. Same code path. Different data → different behavior.**
+
+### Thread Safety by Design
+
+CASCADE uses **per-product StampedLock** for fine-grained concurrency — different products process in parallel with zero cross-product contention. Stock queries use **optimistic reads** for zero-lock overhead during flash sales. All engine statistics use **lock-free AtomicLong** counters — no increments are ever lost under concurrent load.
 
 ---
 
@@ -390,6 +394,32 @@ var result = replayer.replayAll(recovered, "PS5", 10_000);
 // State perfectly restored from append-only log
 ```
 
+### 7. Bounded Vector Clocks — Large-Scale Deployments
+
+```java
+// In systems with 1000+ warehouses, vector clocks grow linearly.
+// Bounded clocks prune the least-active entries to cap memory usage.
+
+// Create a bounded clock that retains only the top 50 nodes
+VectorClock bounded = VectorClock.bounded(50);
+
+// Or from existing state
+VectorClock fromState = VectorClock.bounded(
+    Map.of("MUM", 100L, "BLR", 95L, "DEL", 40L, "HYD", 5L),
+    3  // keep top 3 by counter value
+);
+// Result: {MUM=100, BLR=95, DEL=40} — HYD pruned
+
+// Bounds are preserved through merges
+VectorClock other = new VectorClock(Map.of("CHN", 200L, "KOL", 1L));
+VectorClock merged = fromState.merge(other);
+// Result: {CHN=200, MUM=100, BLR=95} — still 3 entries
+
+// Monitor clock growth
+System.out.println("Entries: " + merged.size());          // 3
+System.out.println("Max: " + merged.getMaxEntries());     // 3
+```
+
 ---
 
 ## Source Types
@@ -436,7 +466,7 @@ make demo-failure
 
 ## Test Suite
 
-**76 tests. All passing. Zero failures.**
+**87 tests. All passing. Zero failures.**
 
 | Category | Tests | What's Covered |
 |:--|:--|:--|
@@ -444,6 +474,7 @@ make demo-failure
 | **Unit — MergeProcessor** | 6 | Each pipeline step individually |
 | **Unit — ConflictResolver** | 3 | Trust scoring, low-trust rejection, fallback |
 | **Unit — VectorClock** | 15 | All causal relations, CRDT properties |
+| **Unit — VectorClock Pruning** | 8 | Bounded creation, merge pruning, copy preservation, boundary cases |
 | **Unit — CausalityComparator** | 4 | Newer/stale/concurrent detection |
 | **Unit — TrustScorer** | 4 | High trust, low trust, no metadata, freshness |
 | **Unit — EventQueue** | 5 | Enqueue, poll, backpressure, DLQ, metrics |
@@ -452,6 +483,7 @@ make demo-failure
 | **Unit — SnapshotManager** | 2 | Take/retrieve snapshots |
 | **Integration** | 4 | Full pipeline, queue→worker, replay recovery, multi-warehouse |
 | **Concurrency** | 3 | 10K concurrent merges, flash sale, cluster load |
+| **Concurrency — Statistics** | 3 | AtomicLong accuracy under 10K merges, mixed workloads, duplicate storms |
 | **Performance** | 3 | Throughput >100K/sec, latency <1ms, memory <100MB |
 
 ---
